@@ -1,46 +1,60 @@
 {
   "name": "opengravity",
-  "displayName": "opengravity",
+  "displayName": "Opengravity",
   "description": "An AI workflow platform.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.108.1"
   },
-  "categories": [
-    "Other"
-  ],
   "activationEvents": [
+    "onView:opengravity.chatView",
     "onCommand:opengravity.ask"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "opengravity-sidebar",
+          "title": "Opengravity",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "opengravity-sidebar": [
+        {
+          "type": "webview",
+          "id": "opengravity.chatView",
+          "name": "Gravity Chat"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "opengravity.ask",
         "title": "Opengravity: Ask a Question"
       }
     ],
-    "configuration": [
-      {
-        "title": "Opengravity",
-        "properties": {
-          "opengravity.provider": {
-            "type": "string",
-            "enum": [
-              "deepseek",
-              "gemini"
-            ],
-            "default": "deepseek",
-            "description": "选择大语言模型"
-          },
-          "opengravity.apiKey": {
-            "type": "string",
-            "default": "",
-            "description": "API密钥 请妥善保管"
-          }
+    "configuration": {
+      "title": "Opengravity",
+      "properties": {
+        "opengravity.provider": {
+          "type": "string",
+          "enum": ["deepseek", "gemini"],
+          "default": "deepseek",
+          "description": "选择大语言模型"
+        },
+        "opengravity.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API密钥 请妥善保管"
         }
       }
-    ]
+    }
+  },
+  "dependencies": {
+    "openai": "^6.17.0"
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
