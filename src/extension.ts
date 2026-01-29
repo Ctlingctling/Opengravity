@@ -35,6 +35,7 @@ import { AIProvider, DeepSeekProvider, GeminiProvider } from './provider';
 export function activate(context: vscode.ExtensionContext) {
 
     console.log('Congratulations, your extension "opengravity" is now active!');
+    console.log('Plugin activation started.');
 
     // 注册一个命令 `opengravity.ask`
     let disposable = vscode.commands.registerCommand('opengravity.ask', async () => {
@@ -44,6 +45,9 @@ export function activate(context: vscode.ExtensionContext) {
         const providerType = config.get<string>('provider', 'deepseek');
         // const apiKey = process.env.DEEPSEEK_API_KEY;
         const apiKey = config.get<string>('apiKey');
+
+        console.log('Reading configuration...');
+        console.log(`Provider: ${providerType}, API Key: ${apiKey}`);
 
         if (!apiKey) {
             vscode.window.showErrorMessage('API Key is not configured. Please set it in your settings.');

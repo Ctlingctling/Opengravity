@@ -20,7 +20,7 @@
         "title": "Opengravity: Ask a Question"
       }
     ],
-    "configurations": [
+    "configuration": [
       {
         "title": "Opengravity",
         "properties": {
@@ -61,6 +61,7 @@
     "typescript-eslint": "^8.52.0"
   },
   "dependencies": {
-    "axios": "^1.13.4"
+    "axios": "^1.13.4",
+    "openai": "^6.17.0"
   }
 }
