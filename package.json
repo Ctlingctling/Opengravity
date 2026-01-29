@@ -31,12 +31,12 @@
               "gemini"
             ],
             "default": "deepseek",
-            "description": "The AI provider to use."
+            "description": "选择大语言模型"
           },
           "opengravity.apiKey": {
             "type": "string",
             "default": "",
-            "description": "Your API Key for the selected provider. Store it securely."
+            "description": "API密钥 请妥善保管"
           }
         }
       }
@@ -61,7 +61,6 @@
     "typescript-eslint": "^8.52.0"
   },
   "dependencies": {
-    "axios": "^1.13.4",
     "openai": "^6.17.0"
   }
 }
