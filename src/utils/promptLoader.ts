@@ -6,7 +6,7 @@ export async function loadSystemPrompt(): Promise<string> {
     // 优先级 1: 当前工作区根目录的 SYSTEM.md
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (workspaceFolders && workspaceFolders.length > 0) {
-        const workspacePath = vscode.Uri.joinPath(workspaceFolders[0].uri, 'SYSTEM.md');
+        const workspacePath = vscode.Uri.joinPath(workspaceFolders[0].uri, '.opengravity', 'SYSTEM.md');
         try {
             const content = await vscode.workspace.fs.readFile(workspacePath);
             console.log('Using Workspace System Prompt');
