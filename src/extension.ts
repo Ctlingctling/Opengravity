@@ -68,7 +68,7 @@ You are Opengravity, an AI-Native DevOS assistant integrated into VSCodium.
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    console.log('Opengravity is now active!');
+    console.log('[CHECK]Opengravity is now active!');
 
     // --- 1. 启动时检查初始化 ---
     initializeWorkspace();
@@ -105,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
         const provider = getAIProvider();
 
         if (!provider) {
-            vscode.window.showErrorMessage('API Key is not configured. Please set it in your settings.');
+            vscode.window.showErrorMessage('暂未配置API key,请在settings中搜索Opengravity.|API Key is not configured. Please set it in your settings.');
             return;
         }
 

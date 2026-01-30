@@ -21,7 +21,7 @@ export class DeepSeekProvider implements AIProvider {
 
     constructor(apiKey: string) {
         this.openai = new OpenAI({
-            baseURL: 'https://api.deepseek.com', // 确认是用 v1 还是根路径，DeepSeek 有时会有变动，通常是 base
+            baseURL: 'https://api.deepseek.com/v1', // 确认是用 v1 还是根路径，DeepSeek 有时会有变动，通常是 base
             apiKey: apiKey,
         });
     }
@@ -33,12 +33,12 @@ export class DeepSeekProvider implements AIProvider {
     ): Promise<string> {
         try {
             const stream = await this.openai.chat.completions.create({
-                model: "deepseek-reasoner", // 👈 使用推理模型 R1
+                model: "deepseek-reasoner",
                 messages: [
                     { role: "system", content: systemPrompt || "You are a helpful assistant." },
                     { role: "user", content: prompt }
                 ],
-                stream: true, // 👈 开启流式
+                stream: true,
             });
 
             let fullContent = "";
@@ -76,7 +76,7 @@ export class DeepSeekProvider implements AIProvider {
 export class GeminiProvider implements AIProvider {
     constructor(apiKey: string) {}
     async generateContentStream(prompt: string, onUpdate: (update: StreamUpdate) => void, systemPrompt?: string): Promise<string> {
-        onUpdate({ type: 'content', delta: "Gemini stream not implemented yet." });
-        return "Gemini stream not implemented yet.";
+        onUpdate({ type: 'content', delta: "Gemini问答暂未开放" });
+        return "Gemini问答暂未开放";
     }
 }

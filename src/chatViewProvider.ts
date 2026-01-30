@@ -164,7 +164,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             position: relative; cursor: pointer; overflow-x: auto;
         }
         pre:hover::after {
-            content: "CLICK TO INSERT"; position: absolute; top: 2px; right: 5px;
+            content: "INSERT"; position: absolute; top: 2px; right: 5px;
             font-size: 9px; color: var(--ai-color);
         }
 
@@ -208,8 +208,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     <div id="bottom-container">
         <!-- 按钮移动到了这里 -->
         <div id="action-bar">
-            <div class="btn" onclick="linkFile()">[LINK_ACTIVE_FILE]</div>
-            <div class="btn" onclick="saveClear()">[SAVE_&_ARCHIVE]</div>
+            <div class="btn" onclick="linkFile()">[LINK_FILE]</div>
+            <div class="btn" onclick="saveClear()">[SAVE_CHAT]</div>
         </div>
         
         <div class="input-wrapper">
@@ -261,7 +261,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         function appendMsg(role, text) {
             const div = document.createElement('div');
             div.className = 'msg msg-' + role;
-            const label = role === 'user' ? 'USER' : 'GRAVITY';
+            const label = role === 'user' ? 'USER' : 'OPENGRAVITY';
             div.innerHTML = \`<div style="font-weight:bold;margin-bottom:5px">[\${label}]</div>
                              <div class="reasoning"></div><div class="content"></div>\`;
             if (role === 'user') div.querySelector('.content').textContent = text;
