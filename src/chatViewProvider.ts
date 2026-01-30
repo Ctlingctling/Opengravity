@@ -202,7 +202,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
     <div id="chat-box">
-        <div style="color:var(--gray); opacity:0.5">Opengravity OS v1.0.4 initialized...</div>
+        <div style="color:var(--gray); opacity:0.5">Opengravity initialized...</div>
     </div>
 
     <div id="bottom-container">
