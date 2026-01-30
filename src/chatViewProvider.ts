@@ -18,6 +18,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     public resolveWebviewView(webviewView: vscode.WebviewView) {
         this._view = webviewView;
+
+        // --- 【新增】启动时加载历史 ---
+        this.loadSessionFromDisk(); 
+
         webviewView.webview.options = {
             enableScripts: true,
             localResourceRoots: [this._extensionUri]
@@ -85,6 +89,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             // 4. 将 AI 完整结果存入上下文
             this._apiMessages.push(aiResponse);
             this._view.webview.postMessage({ type: 'streamEnd' });
+
+            // --- 【新增】对话完成后，立即保存到硬盘 ---
+            this.saveSessionToDisk();
 
             // 5. Agent 指令解析 (READ/WRITE)
             await this.processAgentCommands(aiResponse.content);
@@ -299,5 +306,37 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     </script>
 </body>
 </html>`;
+    }
+    // --- 【新增】持久化存储：获取历史文件路径 ---
+    private getHistoryPath(): string | undefined {
+        if (!vscode.workspace.workspaceFolders) return undefined;
+        return path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, '.opengravity', 'session_history.json');
+    }
+
+    // --- 【新增】持久化存储：保存当前对话到硬盘 ---
+    private saveSessionToDisk() {
+        const historyPath = this.getHistoryPath();
+        if (historyPath) {
+            try {
+                // 只保存 _apiMessages，因为它可以推导出 UI 历史
+                fs.writeFileSync(historyPath, JSON.stringify(this._apiMessages, null, 2), 'utf-8');
+            } catch (e) {
+                console.error('Failed to save session:', e);
+            }
+        }
+    }
+
+    // --- 【新增】持久化存储：从硬盘加载对话 ---
+    private loadSessionFromDisk() {
+        const historyPath = this.getHistoryPath();
+        if (historyPath && fs.existsSync(historyPath)) {
+            try {
+                const data = fs.readFileSync(historyPath, 'utf-8');
+                this._apiMessages = JSON.parse(data);
+            } catch (e) {
+                console.error('Failed to load session:', e);
+                this._apiMessages = []; // 如果文件坏了，就重置
+            }
+        }
     }
 }
