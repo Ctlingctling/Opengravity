@@ -140,10 +140,23 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     private async handleLinkActiveFile() {
         const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const content = `[CONTEXT: \`${path.basename(editor.document.fileName)}\`]\n\`\`\`\n${editor.document.getText()}\n\`\`\``;
-            await this.handleUserMessage(content);
+        if (!editor) {
+            vscode.window.showErrorMessage("ERR: NO ACTIVE FILE OPEN");
+            return;
         }
+
+        const fileName = path.basename(editor.document.fileName);
+        const fileContent = editor.document.getText();
+        
+        // 【关键修改】：不再直接发消息，而是把构造好的 Prompt 发回给前端输入框
+        // 让用户觉得是“我引用了这个文件，现在我要问...”
+        const contextPrompt = `[CONTEXT: ${fileName}]\n\`\`\`\n${fileContent}\n\`\`\`\n\n`;
+        
+        // 我们需要通知前端：把这段话填进输入框，但不要发送！
+        this._view?.webview.postMessage({ 
+            type: 'fillInput', 
+            value: contextPrompt 
+        });
     }
 
     private async handleSaveAndClear() {
@@ -273,6 +286,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                     const div = appendMsg(m.role, m.content);
                     if (m.role === 'ai') div.querySelector('.content').innerHTML = marked.parse(m.content);
                 });
+            } else if (msg.type === 'fillInput') {
+                // 把内容填进输入框，并聚焦
+                input.value = msg.value;
+                input.focus();
+                // 自动调整高度
+                input.style.height = 'auto';
+                input.style.height = input.scrollHeight + 'px';
             }
         });
         vscode.postMessage({ type: 'webviewLoaded' });
