@@ -3,6 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { AIProvider, ApiMessage } from './provider';
 import { loadSystemPrompt } from './utils/promptLoader';
+import { TARS_TOOLS } from './tools/definitions'; // 👈 引入说明书
+import { ToolExecutor } from './tools/executor';    // 👈 引入执行者
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'opengravity.chatView';
@@ -57,50 +59,62 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     private async handleUserMessage(content: string) {
         if (!this._view) return;
         const provider = this._getAIProvider();
-        if (!provider) {
-            this._view.webview.postMessage({ type: 'error', value: 'API KEY MISSING' });
-            return;
-        }
+        if (!provider) return;
 
-        // 1. 初始化系统提示词 (仅首轮)
+    // A. 基础上下文维护
         if (this._apiMessages.length === 0) {
             const sys = await loadSystemPrompt();
             this._apiMessages.push({ role: 'system', content: sys });
         }
-
-        // 2. 存入用户消息
-        this._apiMessages.push({ role: 'user', content });
+        if (content) { // 只有用户输入时才 push，自动递归时 content 为空
+            this._apiMessages.push({ role: 'user', content });
+        }
 
         try {
             this._view.webview.postMessage({ type: 'streamStart' });
 
-            // 3. 调用 AI 引擎，回传完整 messages 数组
+        // B. 调用 AI (注意我们将 tools 传递给 provider)
             const aiResponse = await provider.generateContentStream(
                 this._apiMessages, 
                 (update) => {
-                    this._view?.webview.postMessage({ 
-                        type: 'streamUpdate', 
-                        dataType: update.type, 
-                        value: update.delta 
-                    });
+                    this._view?.webview.postMessage({ type: 'streamUpdate', dataType: update.type, value: update.delta });
                 }
+            // 这里记得修改你的 provider.ts，让它在 API 调用时带上 TARS_TOOLS
             );
 
-            // 4. 将 AI 完整结果存入上下文
             this._apiMessages.push(aiResponse);
             this._view.webview.postMessage({ type: 'streamEnd' });
-
-            // --- 【新增】对话完成后，立即保存到硬盘 ---
             this.saveSessionToDisk();
 
-            // 5. Agent 指令解析 (READ/WRITE)
-            await this.processAgentCommands(aiResponse.content);
+        // C. 【关键】处理工具调用逻辑
+            if (aiResponse.tool_calls && aiResponse.tool_calls.length > 0) {
+                for (const toolCall of aiResponse.tool_calls) {
+                    const name = toolCall.function.name;
+                    const args = JSON.parse(toolCall.function.arguments);
+
+                    let result = "";
+                // 分发执行
+                    if (name === 'read_file') result = await ToolExecutor.read_file(args);
+                    else if (name === 'write_file') result = await ToolExecutor.write_file(args);
+                    else if (name === 'run_command') result = await ToolExecutor.run_command(args);
+
+                // D. 回传结果给 AI
+                    this._apiMessages.push({
+                        role: 'tool',
+                        tool_call_id: toolCall.id,
+                        content: result
+                    });
+                }
+
+            // E. 【自循环】工具执行完后，不需要用户说话，AI 自动根据结果继续回复
+                await this.handleUserMessage(""); 
+            }
 
         } catch (err: any) {
             this._view.webview.postMessage({ type: 'error', value: err.message });
         }
     }
-
+    
     private async processAgentCommands(aiResponse: string) {
         if (!vscode.workspace.workspaceFolders) return;
         const rootPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
