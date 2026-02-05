@@ -2,7 +2,9 @@
 
 ## ⚠️ 非常重要！！！！
 
- Opengravity 灵感来源于 @bilibili/MarsLUL 的 OrbitOS (一个Obsidian的工作流生产力插件https://github.com/MarsWang42/OrbitOS)，绝对比 Opengravity 更稳定可靠
+ Opengravity 灵感来源于 @bilibili/MarsLUL 的 OrbitOS (一个Obsidian的工作流生产力插件)
+ https://github.com/MarsWang42/OrbitOS
+ 绝对比 Opengravity 更稳定可靠
 
  Opengravity 是我做了给自己用的小插件，很多地方没有经过严谨的验证，肯定存在很多恶性的bug，我没有扎实的技术背景，大部分功能是和大模型聊天加上的
 如果你正在考虑把 Opengravity 放到自己的工作中，我劝你放弃，这是我的玩具，不是个合格的工具。
